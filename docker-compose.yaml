@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  fastapi-environment:
+    container_name: fastapi
+    build:
+      dockerfile: Dockerfile
+    working_dir: /code/
+    command: uvicorn app.main:app --host 0.0.0.0 --reload
+    depends_on:
+      - db_api
+    volumes:
+      - ./app:/code/app
+    ports:
+      - 8000:8000
+    restart: on-failure
+  db_api:
+    container_name: db_api
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
+      MYSQL_DATABASE: MYSQL_DATABASE
+      MYSQL_USER: MYSQL_USER
+      MYSQL_PASSWORD: MYSQL_PASSWORD
+    ports:
+      - "9906:3306"
+  phpmyadmin:
+    container_name: phpmyadmin_api
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8080:80"
+    restart: always
+    environment:
+      PMA_HOST: db_api
+    depends_on:
+      - db_api
